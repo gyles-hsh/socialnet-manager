@@ -50,6 +50,48 @@ body {
   overflow: hidden;
 }
 
+/* Mobile responsiveness - allow scrolling on small screens */
+@media (max-width: 767px) {
+  html {
+    overflow-y: auto;
+    height: auto;
+  }
+  
+  body {
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  #app-wrapper {
+    height: auto;
+    min-height: calc(100vh - var(--header-h));
+    overflow: visible;
+  }
+  
+  main.container-fluid {
+    overflow: visible;
+    height: auto;
+    min-height: 100%;
+  }
+  
+  .row.h-100 {
+    overflow: visible;
+    height: auto;
+  }
+  
+  .col-12.col-md-4 {
+    overflow: visible;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+  
+  .sn-panel {
+    height: auto;
+    min-height: 300px;
+  }
+}
+
 /* Application header */
 #app-header {
   background: var(--clr-header-bg);
