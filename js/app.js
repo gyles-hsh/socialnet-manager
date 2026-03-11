@@ -7,8 +7,8 @@
 // loaded in the head element of index.html.
 const { createClient } = supabase
 
-const SUPABASE_URL      = 'https://YOUR-PROJECT-ID.supabase.co'
-const SUPABASE_PUBLISHABLE_KEY = 'YOUR-PUBLISHABLE-KEY'
+const SUPABASE_URL      = 'https://phhhvkdywzdmhumcvaxx.supabase.co'
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_p-DYpHcLuXbKPcz9S0w9DQ_CNytcrzV'
 
 const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
 
