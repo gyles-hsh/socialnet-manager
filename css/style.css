@@ -50,48 +50,6 @@ body {
   overflow: hidden;
 }
 
-/* Mobile responsiveness - allow scrolling on small screens */
-@media (max-width: 767px) {
-  html {
-    overflow-y: auto;
-    height: auto;
-  }
-  
-  body {
-    overflow-y: auto;
-    height: auto;
-    min-height: 100vh;
-  }
-  
-  #app-wrapper {
-    height: auto;
-    min-height: calc(100vh - var(--header-h));
-    overflow: visible;
-  }
-  
-  main.container-fluid {
-    overflow: visible;
-    height: auto;
-    min-height: 100%;
-  }
-  
-  .row.h-100 {
-    overflow: visible;
-    height: auto;
-  }
-  
-  .col-12.col-md-4 {
-    overflow: visible;
-    height: auto;
-    margin-bottom: 1rem;
-  }
-  
-  .sn-panel {
-    height: auto;
-    min-height: 300px;
-  }
-}
-
 /* Application header */
 #app-header {
   background: var(--clr-header-bg);
@@ -286,4 +244,82 @@ main.container-fluid {
   align-items: center;
   padding:     0.4rem 1rem;
   flex-shrink: 0;
+}
+
+/* ============================================= */
+/* Mobile responsiveness - allow scrolling on small screens */
+/* ============================================= */
+@media (max-width: 767px) {
+  html {
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+  
+  body {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh;
+  }
+  
+  #app-wrapper {
+    height: auto !important;
+    min-height: calc(100vh - var(--header-h));
+    overflow: visible !important;
+    display: block !important;
+  }
+  
+  main.container-fluid {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 100%;
+    display: block !important;
+  }
+  
+  .row.h-100 {
+    overflow: visible !important;
+    height: auto !important;
+    display: block !important;
+  }
+  
+  .col-12.col-md-4 {
+    overflow: visible !important;
+    height: auto !important;
+    margin-bottom: 1rem;
+    display: block !important;
+  }
+  
+  .sn-panel {
+    height: auto !important;
+    min-height: auto !important;
+    display: block !important;
+  }
+  
+  .sn-panel-edit {
+    display: block !important;
+  }
+  
+  .sn-panel-edit > .flex-grow-1 {
+    display: block !important;
+  }
+  
+  #btn-exit {
+    margin-top: 1rem !important;
+  }
+  
+  #profile-list {
+    max-height: 250px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  #friends-list {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  #status-bar {
+    position: relative !important;
+    margin-top: 0 !important;
+  }
 }
