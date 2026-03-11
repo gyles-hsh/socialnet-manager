@@ -1,0 +1,139 @@
+/* css/style.css */
+
+/* Bootstrap CSS custom property overrides */
+:root {
+  --font-heading: 'Source Serif 4', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --clr-oxford-blue: #002147;
+  --clr-oxford-blue-light: #003366;
+  --clr-header-bg:  #002147;
+  --clr-page-bg:   #dde3ec;
+  --clr-panel-bg:  #f7f8fa;
+  --clr-panel-border: #c8cdd8;
+  --clr-blue: #002147;
+  --clr-status-bg: #002147;
+  --clr-status-text: #ecf0f1;
+  --clr-list-active: #002147;
+  --header-h: 60px;
+  --statusbar-h: 35px;
+  --radius-lg: 6px;
+}
+
+/* Override Bootstrap primary color to Oxford Blue */
+.btn-primary {
+  background-color: #002147 !important;
+  border-color: #002147 !important;
+}
+
+.btn-primary:hover {
+  background-color: #003366 !important;
+  border-color: #003366 !important;
+}
+
+.btn-primary:active, .btn-primary:focus {
+  background-color: #001530 !important;
+  border-color: #001530 !important;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--clr-page-bg);
+  margin: 0;
+  padding: 0;
+}
+
+/* Application header */
+#app-header {
+  background: var(--clr-header-bg);
+  color: white;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+#app-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Application wrapper: full-height flex column layout */
+#app-wrapper {
+  height: calc(100vh - var(--header-h));
+  display: flex;
+  flex-direction: column;
+}
+
+/* Panel card styling */
+.sn-panel {   /* custom panel card */
+  background:     var(--clr-panel-bg);
+  border:         1px solid var(--clr-panel-border);
+  border-radius:  var(--radius-lg);
+  padding:        0.75rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Edit Profile panel - maximize vertical space */
+.sn-panel-edit {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Profile picture circular display */
+#profile-pic, .profile-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Profile picture hover effect */
+#profile-pic:hover {
+  transform:  scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Friends list item in centre panel */
+#friends-list .friend-entry {
+  padding:   0.35rem 0.5rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+#friends-list .friend-entry:last-child {
+  border-bottom: none;
+}
+
+/* Active profile highlight in left panel */
+#profile-list .profile-item.active {
+  background: var(--clr-list-active) !important;
+  border-color: var(--clr-blue) !important;
+  color: #ffffff !important;
+}
+
+/* Profile list items compact styling */
+#profile-list .profile-item {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Status bar at bottom */
+#status-bar {
+  background: var(--clr-status-bg);
+  color: var(--clr-status-text);
+  height: var(--statusbar-h);
+  font-size: 0.8rem;
+  font-style: italic;
+  display:     flex;
+  align-items: center;
+  padding:     0.4rem 1rem;
+  flex-shrink: 0;
+}
