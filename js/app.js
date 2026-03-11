@@ -61,8 +61,11 @@ function clearCentrePanel() {
  * friends: an array of friend rows with a nested profiles object for the name.
  */
 function displayProfile(profile, friends = []) {
-  document.getElementById('profile-pic').src =
-    profile.picture || 'resources/images/default.png'
+  // Fix path separators: convert backslashes to forward slashes for web
+  const picturePath = profile.picture 
+    ? profile.picture.replace(/\\/g, '/') 
+    : 'resources/images/default.png'
+  document.getElementById('profile-pic').src = picturePath
   document.getElementById('profile-name').textContent   = profile.name
   document.getElementById('profile-status').textContent =
     profile.status || '(no status)'
@@ -108,7 +111,7 @@ async function loadProfileList() {
   try {
     const { data, error } = await db
       .from('profiles')
-      .select('id, name')
+      .select('id, name, picture')
       .order('name', { ascending: true })
 
     if (error) throw error
@@ -125,8 +128,24 @@ async function loadProfileList() {
     data.forEach(profile => {
       const btn = document.createElement('button')
       btn.className   = 'profile-item btn btn-sm btn-outline-secondary w-100 text-start mb-1'
-      btn.textContent = profile.name
       btn.dataset.id  = profile.id
+      
+      // Create profile picture thumbnail
+      const img = document.createElement('img')
+      const picturePath = profile.picture 
+        ? profile.picture.replace(/\\/g, '/') 
+        : 'resources/images/default.png'
+      img.src = picturePath
+      img.alt = profile.name
+      img.className = 'profile-list-thumb'
+      
+      // Create name span
+      const nameSpan = document.createElement('span')
+      nameSpan.textContent = profile.name
+      nameSpan.className = 'profile-list-name'
+      
+      btn.appendChild(img)
+      btn.appendChild(nameSpan)
       btn.addEventListener('click', () => selectProfile(profile.id))
       container.appendChild(btn)
     })
@@ -159,15 +178,31 @@ async function selectProfile(profileId) {
 
     if (profileError) throw profileError
 
-    // Fetch friends, joining to profiles to get each friend's name.
-    // The join alias "profiles!friends_friend_id_fkey" uses the FK name
-    // that Supabase generates from the column and referenced table names.
-    const { data: friends, error: friendsError } = await db
+    // Fetch friends relationships
+    const { data: friendsRaw, error: friendsError } = await db
       .from('friends')
-      .select('profile_id, friend_id')       .or(`profile_id.eq.${profileId},friend_id.eq.${profileId}`)
-
+      .select('profile_id, friend_id')
+      .or(`profile_id.eq.${profileId},friend_id.eq.${profileId}`)
 
     if (friendsError) throw friendsError
+
+    // Process friends data to get the correct friend IDs and fetch their names
+    const friendIds = friendsRaw ? friendsRaw.map(f => {
+      // If current profile is profile_id, the friend is friend_id, and vice versa
+      return f.profile_id === profileId ? f.friend_id : f.profile_id
+    }) : []
+
+    // Fetch all friend profile names
+    let friends = []
+    if (friendIds.length > 0) {
+      const { data: friendProfiles, error: profilesError } = await db
+        .from('profiles')
+        .select('id, name')
+        .in('id', friendIds)
+
+      if (profilesError) throw profilesError
+      friends = friendProfiles || []
+    }
 
     displayProfile(profile, friends)
 
@@ -348,7 +383,9 @@ async function changePicture() {
 
     if (error) throw error
 
-    document.getElementById('profile-pic').src = newPicture
+    // Fix path separators for web display
+    const displayPath = newPicture.replace(/\\/g, '/')
+    document.getElementById('profile-pic').src = displayPath
     document.getElementById('input-picture').value = ''
     setStatus('Picture updated.')
 

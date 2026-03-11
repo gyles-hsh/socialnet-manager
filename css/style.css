@@ -35,13 +35,19 @@
   border-color: #001530 !important;
 }
 
-html { scroll-behavior: smooth; }
+html { 
+  scroll-behavior: smooth;
+  overflow: hidden;
+  height: 100%;
+}
 
 body {
   font-family: var(--font-body);
   background: var(--clr-page-bg);
   margin: 0;
   padding: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Application header */
@@ -67,6 +73,30 @@ body {
   height: calc(100vh - var(--header-h));
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* Main content area */
+main.container-fluid {
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Row container for panels */
+.row.h-100 {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* Column containers */
+.col-12.col-md-4 {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Panel card styling */
@@ -75,9 +105,15 @@ body {
   border:         1px solid var(--clr-panel-border);
   border-radius:  var(--radius-lg);
   padding:        0.75rem;
-  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+/* Center panel specific - ensure proper flex behavior */
+.sn-panel.text-center {
+  min-height: 0;
 }
 
 /* Edit Profile panel - maximize vertical space */
@@ -85,6 +121,58 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+/* Scrollable boxes - Profile list and Friends list */
+.sn-panel > .flex-grow-1:not(.d-flex) {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+#profile-list {
+  flex: 1 1 0 !important;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+#friends-list {
+  flex: 1 1 0 !important;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Wrapper for friends section to enable proper scrolling */
+.text-start.flex-grow-1.d-flex.flex-column {
+  flex: 1 1 0 !important;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Scrollbar styling */
+#friends-list::-webkit-scrollbar,
+#profile-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+#friends-list::-webkit-scrollbar-track,
+#profile-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#friends-list::-webkit-scrollbar-thumb,
+#profile-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+#friends-list::-webkit-scrollbar-thumb:hover,
+#profile-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 /* Profile picture circular display */
@@ -121,8 +209,28 @@ body {
 
 /* Profile list items compact styling */
 #profile-list .profile-item {
-  padding: 0.35rem 0.5rem;
-  font-size: 0.85rem;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* Profile list thumbnail image */
+.profile-list-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Profile list name text */
+.profile-list-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Status bar at bottom */

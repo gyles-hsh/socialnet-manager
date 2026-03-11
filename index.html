@@ -49,7 +49,7 @@
 
           <!-- Profile List -->
           <p class="small fw-semibold text-muted mb-1">All Profiles:</p>
-          <div id="profile-list" class="profile-list-box border rounded p-1" style="height: 240px; overflow-y: auto;">
+          <div id="profile-list" class="profile-list-box border rounded p-1 flex-grow-1">
             <!-- Populated dynamically by JavaScript -->
           </div>
         </div>
@@ -63,7 +63,7 @@
           <!-- Profile picture and name -->
           <div class="d-flex flex-column align-items-center mb-2">
             <img id="profile-pic"
-                 src="resources/default.png"
+                 src="resources/images/default.png"
                  alt="Profile picture"
                  class="profile-thumb rounded-circle border mb-2" />
             <h5 id="profile-name" class="fw-bold mb-0">No Profile Selected</h5>
@@ -82,9 +82,9 @@
           </div>
 
           <!-- Friends list -->
-          <div class="text-start">
+          <div class="text-start flex-grow-1 d-flex flex-column" style="min-height: 0;">
             <label class="form-label fw-semibold small mb-1">Friends:</label>
-            <div id="friends-list" class="border rounded p-1 bg-white" style="height: 120px; overflow-y: auto;">
+            <div id="friends-list" class="border rounded p-1 bg-white flex-grow-1">
               <!-- Populated dynamically by JavaScript -->
             </div>
           </div>
