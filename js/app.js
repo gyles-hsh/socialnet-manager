@@ -76,6 +76,14 @@ function displayProfile(profile, friends = []) {
     
     // Construct full Vercel Blob URL
     picturePath = `${BLOB_BASE_URL}/avatars/${webpName}`;
+    
+    // Debug logging
+    console.log('Image Loading Debug:');
+    console.log('  Original filename from DB:', profile.picture);
+    console.log('  Extracted filename:', filename);
+    console.log('  WebP name:', webpName);
+    console.log('  Full Blob URL:', picturePath);
+    console.log('  BLOB_BASE_URL:', BLOB_BASE_URL);
   }
   
   document.getElementById('profile-pic').src = picturePath
