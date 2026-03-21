@@ -24,8 +24,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Check for VERCEL_BLOB_READ_WRITE_TOKEN environment variable
-  if (!process.env.VERCEL_BLOB_READ_WRITE_TOKEN) {
+  // Check for either the custom VERCEL_BLOB_READ_WRITE_TOKEN or standard BLOB_READ_WRITE_TOKEN
+  const blobToken = process.env.VERCEL_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+  
+  if (!blobToken) {
     return res.status(500).json({ 
       error: 'Blob storage token not configured' 
     });
@@ -120,7 +122,8 @@ export default async function handler(req, res) {
     // Upload to Vercel Blob
     const blob = await put(finalFilename, fileBuffer, {
       contentType: 'image/webp',
-      access: 'public'
+      access: 'public',
+      token: blobToken // pass the token explicitly to ensure it works
     });
 
     // Return just the filename for Supabase storage (frontend will construct full URL if needed)
