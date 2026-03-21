@@ -62,9 +62,15 @@ function clearCentrePanel() {
  */
 function displayProfile(profile, friends = []) {
   // Fix path separators: convert backslashes to forward slashes for web
-  const picturePath = profile.picture 
+  let picturePath = profile.picture 
     ? profile.picture.replace(/\\/g, '/') 
     : 'resources/images/default.png'
+  
+  // Convert old PNG/JPG extensions to WebP (stored in Vercel Blob as WebP)
+  if (picturePath.endsWith('.png') || picturePath.endsWith('.jpg') || picturePath.endsWith('.jpeg')) {
+    picturePath = picturePath.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+  }
+  
   document.getElementById('profile-pic').src = picturePath
   document.getElementById('profile-name').textContent   = profile.name
   document.getElementById('profile-status').textContent =
