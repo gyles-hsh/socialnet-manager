@@ -392,6 +392,24 @@ async function changeStatus() {
 }
 
 /**
+ * updatePicture()
+ * Router function that calls either uploadPictureFromFile or updatePictureFromURL
+ * depending on which input field has data.
+ */
+async function updatePicture() {
+  const fileInput = document.getElementById('file-picture')
+  const urlInput = document.getElementById('input-picture-url')
+  
+  if (fileInput.files.length > 0) {
+    await uploadPictureFromFile()
+  } else if (urlInput.value.trim() !== '') {
+    await updatePictureFromURL()
+  } else {
+    setStatus('Error: Please select a file or enter an image URL.', true)
+  }
+}
+
+/**
  * uploadPictureFromFile()
  * Handles file upload from device. Converts PNG/JPG/JPEG to WebP,
  * uploads to Vercel Blob via the API, and updates Supabase with filename.
@@ -454,6 +472,7 @@ async function uploadPictureFromFile() {
     const displayUrl = `${BLOB_BASE_URL}/avatars/${webpFilename}`
     document.getElementById('profile-pic').src = displayUrl
     fileInput.value = ''
+    document.getElementById('input-picture-url').disabled = false
     setStatus(`Picture uploaded and saved successfully.`)
     
     // Reload profile list to show updated image
@@ -526,6 +545,7 @@ async function updatePictureFromURL() {
     // Update display
     document.getElementById('profile-pic').src = imageUrl
     urlInput.value = ''
+    document.getElementById('file-picture').disabled = false
     setStatus('Picture updated from URL.')
     
     // Reload profile list to show updated image
@@ -701,14 +721,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Right panel buttons ────────────────────────────────────────
   document.getElementById('btn-status')
     .addEventListener('click', changeStatus)
-  document.getElementById('btn-upload-picture')
-    .addEventListener('click', uploadPictureFromFile)
-  document.getElementById('btn-paste-picture')
-    .addEventListener('click', updatePictureFromURL)
+  document.getElementById('btn-update-picture')
+    .addEventListener('click', updatePicture)
   document.getElementById('btn-add-friend')
     .addEventListener('click', addFriend)
   document.getElementById('btn-remove-friend')
     .addEventListener('click', removeFriend)
+    
+  // ── Picture upload mutual exclusivity ──────────────────────────
+  const filePicture = document.getElementById('file-picture')
+  const urlPicture = document.getElementById('input-picture-url')
+  
+  filePicture.addEventListener('change', () => {
+    urlPicture.disabled = filePicture.files.length > 0
+  })
+  
+  urlPicture.addEventListener('input', () => {
+    filePicture.disabled = urlPicture.value.trim().length > 0
+  })
 
   // ── Exit button ──────────────────────────────────────────────────
   document.getElementById('btn-exit')
@@ -724,7 +754,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // ── Right panel: picture URL ─────────────────────────────────────
   document.getElementById('input-picture-url')
-    .addEventListener('keydown', e => { if (e.key === 'Enter') updatePictureFromURL() })
+    .addEventListener('keydown', e => { if (e.key === 'Enter') updatePicture() })
 
   // ── Enter key shortcuts ────────────────────────────────────────
   // Pressing Enter in the name field triggers Add Profile

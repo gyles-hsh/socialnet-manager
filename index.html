@@ -96,43 +96,42 @@
         <div class="sn-panel sn-panel-edit">
           <h6 class="fw-bold text-dark border-bottom pb-1 mb-2">Edit Profile</h6>
 
-          <div class="flex-grow-1">
+          <div class="flex-grow-1 overflow-auto pe-1 mb-2">
             <!-- Change Status -->
             <label class="form-label fw-semibold small mb-1">Change Status:</label>
             <input type="text" id="input-status" class="form-control form-control-sm mb-1"
                    placeholder="Enter new status">
-            <button id="btn-status" class="btn btn-primary btn-sm w-100 mb-3">Update Status</button>
+            <button id="btn-status" class="btn btn-primary btn-sm w-100 mb-2">Update Status</button>
 
             <!-- Change Favorite Quote -->
             <label class="form-label fw-semibold small mb-1">Change Favorite Quote:</label>
             <input type="text" id="input-quote" class="form-control form-control-sm mb-1"
                    placeholder="Enter favorite quote">
-            <button id="btn-quote" class="btn btn-primary btn-sm w-100 mb-3">Update Quote</button>
+            <button id="btn-quote" class="btn btn-primary btn-sm w-100 mb-2">Update Quote</button>
 
             <!-- Change Picture -->
             <label class="form-label fw-semibold small mb-1">Change Picture:</label>
             
             <!-- Upload from device -->
-            <div class="mb-2">
-              <label class="form-label fw-semibold small mb-1">Upload from device:</label>
+            <div class="mb-1">
+              <label class="form-label fw-semibold mb-1 text-muted" style="font-size: 0.8rem;">Upload from device:</label>
               <input type="file" id="file-picture" class="form-control form-control-sm mb-1"
                      accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-              <button id="btn-upload-picture" class="btn btn-primary btn-sm w-100 mb-2">Upload Picture</button>
             </div>
             
             <!-- Paste image URL -->
-            <div class="mb-3">
-              <label class="form-label fw-semibold small mb-1">Or paste an image URL:</label>
+            <div class="mb-2">
+              <label class="form-label fw-semibold mb-1 text-muted" style="font-size: 0.8rem;">Or paste an image URL:</label>
               <input type="text" id="input-picture-url" class="form-control form-control-sm mb-1"
                      placeholder="https://example.com/image.webp">
-              <button id="btn-paste-picture" class="btn btn-primary btn-sm w-100">Use URL</button>
             </div>
+            <button id="btn-update-picture" class="btn btn-primary btn-sm w-100 mb-2">Update Picture</button>
 
             <!-- Manage Friends -->
             <label class="form-label fw-semibold small mb-1">Manage Friends:</label>
             <input type="text" id="input-friend" class="form-control form-control-sm mb-1"
                    placeholder="Enter friend's name">
-            <div class="d-flex gap-1 mb-3">
+            <div class="d-flex gap-1 mb-1">
               <button id="btn-add-friend" class="btn btn-success btn-sm flex-fill">Add Friend</button>
               <button id="btn-remove-friend" class="btn btn-warning btn-sm flex-fill">Remove</button>
             </div>
