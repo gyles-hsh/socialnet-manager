@@ -14,7 +14,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
 
 // Vercel Blob storage base URL
 // Update this with your actual Vercel Blob domain from the upload script output
-const BLOB_BASE_URL = localStorage.getItem('blobUrl') || 'https://ubkbezlqyaawcxrm.vercel-storage.com';
+const BLOB_BASE_URL = localStorage.getItem('blobUrl') || 'https://ubkbezlqyaawcxrm.public.blob.vercel-storage.com';
 
 // ================================================================
 // Section 2: Application State
