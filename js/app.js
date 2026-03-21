@@ -298,8 +298,14 @@ function filterProfiles() {
   let hasVisible = false;
 
   listItems.forEach(item => {
-    const name = item.querySelector('.profile-list-name').textContent.toLowerCase();
-    if (name.includes(query)) {
+    const fullName = item.querySelector('.profile-list-name').textContent.toLowerCase();
+    // Split the name into tokens (words)
+    const words = fullName.split(/\s+/);
+    
+    // Check if any word starts with the search query
+    const isMatch = words.some(word => word.startsWith(query));
+    
+    if (isMatch || query === '') {
       item.style.display = '';
       hasVisible = true;
     } else {
