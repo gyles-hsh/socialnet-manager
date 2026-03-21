@@ -50,7 +50,10 @@ function setStatus(message, isError = false) {
  * Called after a profile is deleted or when a search returns no result.
  */
 function clearCentrePanel() {
-  document.getElementById('profile-pic').src       = 'resources/images/default.png'
+  document.getElementById('profile-pic').src       = `${BLOB_BASE_URL}/avatars/default.webp`
+  // Add fallback in case default.webp doesn't exist but default.png does
+  document.getElementById('profile-pic').onerror   = function() { this.src = `${BLOB_BASE_URL}/avatars/default.png`; }
+  
   document.getElementById('profile-name').textContent = 'No Profile Selected'
   document.getElementById('profile-status').textContent = '--'
   document.getElementById('profile-quote').textContent  = '--'
@@ -65,7 +68,7 @@ function clearCentrePanel() {
  * friends: an array of friend rows with a nested profiles object for the name.
  */
 function displayProfile(profile, friends = []) {
-  let picturePath = 'resources/images/default.png';
+  let picturePath = `${BLOB_BASE_URL}/avatars/default.webp`;
   
   if (profile.picture) {
     // Get just the filename (remove any path prefixes)
@@ -153,7 +156,7 @@ async function loadProfileList() {
       
       // Create profile picture thumbnail
       const img = document.createElement('img')
-      let picturePath = 'resources/images/default.png'
+      let picturePath = `${BLOB_BASE_URL}/avatars/default.webp`
       
       if (profile.picture) {
         // Get just the filename (remove any path prefixes)
