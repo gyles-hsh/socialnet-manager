@@ -286,40 +286,53 @@ async function addProfile() {
 }
 
 /**
- * lookUpProfile()
- * Performs a case-insensitive partial name search using Supabase's
- * ilike filter (equivalent to PostgreSQL ILIKE). Returns the first
- * match and selects it in the centre panel.
+ * filterProfiles()
+ * Dynamically filters the profile list in the UI based on the search input.
  */
-async function lookUpProfile() {
-  const query = document.getElementById('input-name').value.trim()
+function filterProfiles() {
+  const query = document.getElementById('input-name').value.toLowerCase().trim();
+  const listItems = document.querySelectorAll('#profile-list .profile-item');
+  let hasVisible = false;
 
-  if (!query) {
-    setStatus('Error: Search field is empty. Please enter a name to search.', true)
-    return
-  }
-
-  try {
-    const { data, error } = await db
-      .from('profiles')
-      .select('id, name')
-      .ilike('name', `%${query}%`)  // % wildcard = partial match
-      .order('name', { ascending: true })
-      .limit(1)
-
-    if (error) throw error
-
-    if (data.length === 0) {
-      setStatus(`No profile found matching "${query}".`, true)
-      clearCentrePanel()
-      return
+  listItems.forEach(item => {
+    const name = item.querySelector('.profile-list-name').textContent.toLowerCase();
+    if (name.includes(query)) {
+      item.style.display = '';
+      hasVisible = true;
+    } else {
+      item.style.display = 'none';
     }
+  });
 
-    await selectProfile(data[0].id)
+  // Handle empty state tracking
+  let emptyMsg = document.getElementById('profile-list-empty');
+  const container = document.getElementById('profile-list');
 
-  } catch (err) {
-    setStatus(`Error looking up profile: ${err.message}`, true)
+  if (!hasVisible && listItems.length > 0) {
+    if (!emptyMsg) {
+      emptyMsg = document.createElement('p');
+      emptyMsg.id = 'profile-list-empty';
+      emptyMsg.className = 'text-muted small fst-italic p-2 mb-0';
+      emptyMsg.textContent = 'No matching profiles.';
+      container.appendChild(emptyMsg);
+    } else {
+      emptyMsg.style.display = '';
+    }
+  } else if (emptyMsg) {
+    emptyMsg.style.display = 'none';
   }
+}
+
+/**
+ * clearSearch()
+ * Clears the search input and resets the profile list filter.
+ */
+function clearSearch() {
+  const input = document.getElementById('input-name');
+  input.value = '';
+  filterProfiles();
+  input.focus();
+  setStatus('Search cleared. Showing all profiles.');
 }
 
 /**
@@ -713,10 +726,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Left panel buttons ─────────────────────────────────────────
   document.getElementById('btn-add')
     .addEventListener('click', addProfile)
-  document.getElementById('btn-lookup')
-    .addEventListener('click', lookUpProfile)
+  document.getElementById('btn-clear-search')
+    .addEventListener('click', clearSearch)
   document.getElementById('btn-delete')
     .addEventListener('click', deleteProfile)
+    
+  // Dynamic profile filtering
+  document.getElementById('input-name')
+    .addEventListener('input', filterProfiles)
 
   // ── Right panel buttons ────────────────────────────────────────
   document.getElementById('btn-status')
