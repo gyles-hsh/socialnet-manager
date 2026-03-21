@@ -1,16 +1,18 @@
 import { put } from '@vercel/blob';
 import busboy from 'busboy';
+import sharp from 'sharp';
 
 /**
  * Vercel serverless function to handle avatar uploads to Vercel Blob
  * 
  * Accepts multipart form data with:
- * - file: The image file to upload
+ * - file: The image file to upload (optional if imageUrl is provided)
+ * - imageUrl: URL of image to download and process (optional if file provided)
  * - filename: Optional custom filename (defaults to UUID)
  * 
  * Returns JSON response with:
+ * - filename: The WebP filename
  * - url: The permanent URL of the uploaded blob
- * - contentType: The MIME type of the uploaded file
  */
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -30,6 +32,7 @@ export default async function handler(req, res) {
     const bb = busboy({ headers: req.headers });
     let fileBuffer = null;
     let filename = null;
+    let imageUrl = null;
     let contentType = null;
 
     // Handle form fields and file uploads
@@ -51,6 +54,8 @@ export default async function handler(req, res) {
     bb.on('field', (fieldname, val) => {
       if (fieldname === 'filename') {
         filename = val;
+      } else if (fieldname === 'imageUrl') {
+        imageUrl = val;
       }
     });
 
@@ -60,9 +65,34 @@ export default async function handler(req, res) {
       bb.on('error', reject);
     });
 
-    // Validate that a file was provided
+    // If a URL is provided instead of a file, fetch it
+    if (!fileBuffer && imageUrl) {
+      try {
+        const response = await fetch(imageUrl);
+        if (!response.ok) throw new Error(`Status ${response.status}`);
+        
+        const arrayBuffer = await response.arrayBuffer();
+        fileBuffer = Buffer.from(arrayBuffer);
+        
+        contentType = response.headers.get('content-type') || 'application/octet-stream';
+        
+        // If filename is not provided, try to extract it from URL
+        if (!filename) {
+          try {
+            const urlPath = new URL(imageUrl).pathname;
+            filename = urlPath.split('/').pop() || `avatar-${Date.now()}`;
+          } catch {
+            // keep the fallback below
+          }
+        }
+      } catch (err) {
+        return res.status(400).json({ error: `Failed to fetch image from URL: ${err.message}` });
+      }
+    }
+
+    // Validate that a file (or url) was provided
     if (!fileBuffer) {
-      return res.status(400).json({ error: 'No file provided' });
+      return res.status(400).json({ error: 'No file or imageUrl provided' });
     }
 
     // Generate filename if not provided
@@ -70,25 +100,22 @@ export default async function handler(req, res) {
       filename = `avatar-${Date.now()}-${Math.random().toString(36).substring(7)}`;
     }
 
-    // Remove extension if present in filename, we'll add it based on MIME type
+    // Convert everything to WebP!
+    try {
+      fileBuffer = await sharp(fileBuffer)
+        .webp({ quality: 80 })
+        .toBuffer();
+    } catch (err) {
+      return res.status(400).json({ error: `Failed to process image: ${err.message}` });
+    }
+
+    // Just use .webp for the blob path
     const baseName = filename.split('.')[0];
-    
-    // Determine file extension from content type
-    const extensionMap = {
-      'image/jpeg': '.jpg',
-      'image/jpg': '.jpg',
-      'image/png': '.png',
-      'image/gif': '.gif',
-      'image/webp': '.webp',
-      'image/svg+xml': '.svg'
-    };
-    
-    const extension = extensionMap[contentType] || '.jpg';
-    const finalFilename = `avatars/${baseName}${extension}`;
+    const finalFilename = `avatars/${baseName}.webp`;
 
     // Upload to Vercel Blob
     const blob = await put(finalFilename, fileBuffer, {
-      contentType,
+      contentType: 'image/webp',
       access: 'public'
     });
 

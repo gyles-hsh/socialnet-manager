@@ -508,7 +508,7 @@ async function uploadPictureFromFile() {
 /**
  * updatePictureFromURL()
  * Updates the profile picture from a pasted image URL.
- * Validates that it's a WebP image from a trusted source.
+ * Prompts the backend to download, convert to WebP, and store in Vercel Blob.
  */
 async function updatePictureFromURL() {
   if (!currentProfileId) {
@@ -532,49 +532,62 @@ async function updatePictureFromURL() {
     return
   }
   
-  // Validate it's a WebP image
-  if (!imageUrl.toLowerCase().endsWith('.webp')) {
-    setStatus('Error: Only WebP images are allowed from URLs. Convert your image to WebP first.', true)
-    return
-  }
-  
   try {
-    setStatus('Loading image...')
+    setStatus('Processing image URL...')
     
-    // Verify the URL is accessible and is an image
-    const response = await fetch(imageUrl, { method: 'HEAD' })
+    // Create form data with just the URL
+    const formData = new FormData()
+    formData.append('imageUrl', imageUrl)
+    
+    // Send to our Vercel Serverless Function to download, convert and upload
+    const response = await fetch('/api/upload-avatar', {
+      method: 'POST',
+      body: formData
+    })
+    
+    // Check OK first before trying to parse if we can stream it
     if (!response.ok) {
-      throw new Error('Image URL is not accessible')
+        const errorHtml = await response.text()
+        console.error("Backend error:", errorHtml)
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
     }
     
-    const contentType = response.headers.get('content-type')
-    if (!contentType || !contentType.includes('image')) {
-      throw new Error('URL does not point to an image')
-    }
+    const result = await response.json()
     
-    // Extract filename from URL
-    const urlPath = new URL(imageUrl).pathname
-    const filename = urlPath.split('/').pop().split('?')[0] // Remove query params
+    // The server returns the Vercel Blob URL and filename (result.filename)
+    // We only want the base filename for Supabase (e.g., 'avatar.webp')
+    const filenameToSave = result.filename || result.url.split('/').pop()
     
-    // Update Supabase with the filename only
-    const { error } = await db
+    // Update Supabase with the new filename
+    const { 
+      data: updatedProfile,
+      error: updateError 
+    } = await db
       .from('profiles')
-      .update({ picture: filename })
+      .update({ picture: filenameToSave })
       .eq('id', currentProfileId)
+      .select()
+      .single()
+      
+    if (updateError) throw updateError
     
-    if (error) throw error
-    
-    // Update display
-    document.getElementById('profile-pic').src = imageUrl
+    // Immediately update UI
+    document.getElementById('profile-pic').src = result.url
     urlInput.value = ''
     document.getElementById('file-picture').disabled = false
-    setStatus('Picture updated from URL.')
+    setStatus('Picture processed, converted to WebP and updated successfully!')
     
-    // Reload profile list to show updated image
+    // Reload profile list
     await loadProfileList()
     
+    // Refresh the currently selected profile so data stays in sync
+    if (updatedProfile) {
+      currentProfile = updatedProfile
+    }
+    
   } catch (err) {
-    setStatus(`Error updating picture: ${err.message}`, true)
+    console.error('Upload Error:', err)
+    setStatus(`Upload error: ${err.message}`, true)
   }
 }
 
