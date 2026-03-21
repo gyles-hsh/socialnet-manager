@@ -6,6 +6,13 @@ import dotenv from 'dotenv';
 // Load environment variables for local testing
 dotenv.config();
 
+// Disable the default Vercel body parser so busboy can consume the raw stream
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 /**
  * Vercel serverless function to handle avatar uploads to Vercel Blob
  * 
@@ -64,6 +71,9 @@ export default async function handler(req, res) {
         imageUrl = val;
       }
     });
+
+    // Pipe the request stream into busboy
+    req.pipe(bb);
 
     // Wait for busboy to finish processing
     await new Promise((resolve, reject) => {
