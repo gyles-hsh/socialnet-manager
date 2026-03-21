@@ -392,34 +392,145 @@ async function changeStatus() {
 }
 
 /**
- * changePicture()
- * Updates the picture column with a new relative path and immediately
- * changes the src attribute of the profile image element.
+ * uploadPictureFromFile()
+ * Handles file upload from device. Converts PNG/JPG/JPEG to WebP,
+ * uploads to Vercel Blob via the API, and updates Supabase with filename.
  */
-async function changePicture() {
+async function uploadPictureFromFile() {
   if (!currentProfileId) {
     setStatus('Error: No profile is selected.', true)
     return
   }
-  const newPicture = document.getElementById('input-picture').value.trim()
-  if (!newPicture) {
-    setStatus('Error: Picture field is empty.', true)
+  
+  const fileInput = document.getElementById('file-picture')
+  const file = fileInput.files[0]
+  
+  if (!file) {
+    setStatus('Error: No file selected.', true)
     return
   }
+  
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!allowedTypes.includes(file.type)) {
+    setStatus('Error: Only JPG, PNG, and WebP files are allowed.', true)
+    return
+  }
+  
   try {
+    setStatus('Uploading image...')
+    
+    // Create FormData for multipart upload
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    // Get filename without extension
+    const filename = file.name.split('.')[0]
+    formData.append('filename', filename)
+    
+    // Upload to API endpoint
+    const response = await fetch('/api/upload-avatar', {
+      method: 'POST',
+      body: formData
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`)
+    }
+    
+    const result = await response.json()
+    
+    // Update Supabase with just the filename (convert to webp extension)
+    const webpFilename = result.filename // API already returns .webp
+    
     const { error } = await db
       .from('profiles')
-      .update({ picture: newPicture })
+      .update({ picture: webpFilename })
       .eq('id', currentProfileId)
-
+    
     if (error) throw error
+    
+    // Update display
+    const displayUrl = `${BLOB_BASE_URL}/avatars/${webpFilename}`
+    document.getElementById('profile-pic').src = displayUrl
+    fileInput.value = ''
+    setStatus(`Picture uploaded and saved successfully.`)
+    
+    // Reload profile list to show updated image
+    await loadProfileList()
+    
+  } catch (err) {
+    setStatus(`Error uploading picture: ${err.message}`, true)
+  }
+}
 
-    // Fix path separators for web display
-    const displayPath = newPicture.replace(/\\/g, '/')
-    document.getElementById('profile-pic').src = displayPath
-    document.getElementById('input-picture').value = ''
-    setStatus('Picture updated.')
-
+/**
+ * updatePictureFromURL()
+ * Updates the profile picture from a pasted image URL.
+ * Validates that it's a WebP image from a trusted source.
+ */
+async function updatePictureFromURL() {
+  if (!currentProfileId) {
+    setStatus('Error: No profile is selected.', true)
+    return
+  }
+  
+  const urlInput = document.getElementById('input-picture-url')
+  const imageUrl = urlInput.value.trim()
+  
+  if (!imageUrl) {
+    setStatus('Error: URL field is empty.', true)
+    return
+  }
+  
+  // Validate URL format
+  try {
+    new URL(imageUrl)
+  } catch {
+    setStatus('Error: Invalid URL format.', true)
+    return
+  }
+  
+  // Validate it's a WebP image
+  if (!imageUrl.toLowerCase().endsWith('.webp')) {
+    setStatus('Error: Only WebP images are allowed from URLs. Convert your image to WebP first.', true)
+    return
+  }
+  
+  try {
+    setStatus('Loading image...')
+    
+    // Verify the URL is accessible and is an image
+    const response = await fetch(imageUrl, { method: 'HEAD' })
+    if (!response.ok) {
+      throw new Error('Image URL is not accessible')
+    }
+    
+    const contentType = response.headers.get('content-type')
+    if (!contentType || !contentType.includes('image')) {
+      throw new Error('URL does not point to an image')
+    }
+    
+    // Extract filename from URL
+    const urlPath = new URL(imageUrl).pathname
+    const filename = urlPath.split('/').pop().split('?')[0] // Remove query params
+    
+    // Update Supabase with the filename only
+    const { error } = await db
+      .from('profiles')
+      .update({ picture: filename })
+      .eq('id', currentProfileId)
+    
+    if (error) throw error
+    
+    // Update display
+    document.getElementById('profile-pic').src = imageUrl
+    urlInput.value = ''
+    setStatus('Picture updated from URL.')
+    
+    // Reload profile list to show updated image
+    await loadProfileList()
+    
   } catch (err) {
     setStatus(`Error updating picture: ${err.message}`, true)
   }
@@ -590,8 +701,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Right panel buttons ────────────────────────────────────────
   document.getElementById('btn-status')
     .addEventListener('click', changeStatus)
-  document.getElementById('btn-picture')
-    .addEventListener('click', changePicture)
+  document.getElementById('btn-upload-picture')
+    .addEventListener('click', uploadPictureFromFile)
+  document.getElementById('btn-paste-picture')
+    .addEventListener('click', updatePictureFromURL)
   document.getElementById('btn-add-friend')
     .addEventListener('click', addFriend)
   document.getElementById('btn-remove-friend')
@@ -608,6 +721,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     .addEventListener('click', changeQuote)
   document.getElementById('input-quote')
     .addEventListener('keydown', e => { if (e.key === 'Enter') changeQuote() })
+  
+  // ── Right panel: picture URL ─────────────────────────────────────
+  document.getElementById('input-picture-url')
+    .addEventListener('keydown', e => { if (e.key === 'Enter') updatePictureFromURL() })
 
   // ── Enter key shortcuts ────────────────────────────────────────
   // Pressing Enter in the name field triggers Add Profile
@@ -617,10 +734,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Pressing Enter in the status field triggers Change Status
   document.getElementById('input-status')
     .addEventListener('keydown', e => { if (e.key === 'Enter') changeStatus() })
-
-  // Pressing Enter in the picture field triggers Change Picture
-  document.getElementById('input-picture')
-    .addEventListener('keydown', e => { if (e.key === 'Enter') changePicture() })
 
   // Pressing Enter in the friend field triggers Add Friend
   document.getElementById('input-friend')

@@ -111,9 +111,22 @@
 
             <!-- Change Picture -->
             <label class="form-label fw-semibold small mb-1">Change Picture:</label>
-            <input type="text" id="input-picture" class="form-control form-control-sm mb-1"
-                   placeholder="Enter image filename">
-            <button id="btn-picture" class="btn btn-primary btn-sm w-100 mb-3">Update Picture</button>
+            
+            <!-- Upload from device -->
+            <div class="mb-2">
+              <label class="form-label fw-semibold small mb-1">Upload from device:</label>
+              <input type="file" id="file-picture" class="form-control form-control-sm mb-1"
+                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+              <button id="btn-upload-picture" class="btn btn-primary btn-sm w-100 mb-2">Upload Picture</button>
+            </div>
+            
+            <!-- Paste image URL -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small mb-1">Or paste an image URL:</label>
+              <input type="text" id="input-picture-url" class="form-control form-control-sm mb-1"
+                     placeholder="https://example.com/image.webp">
+              <button id="btn-paste-picture" class="btn btn-primary btn-sm w-100">Use URL</button>
+            </div>
 
             <!-- Manage Friends -->
             <label class="form-label fw-semibold small mb-1">Manage Friends:</label>
