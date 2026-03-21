@@ -85,8 +85,6 @@ function displayProfile(profile, friends = []) {
     console.log('  Original filename from DB:', profile.picture);
     console.log('  Extracted filename:', filename);
     console.log('  WebP name:', webpName);
-    console.log('  Full Blob URL:', picturePath);
-    console.log('  BLOB_BASE_URL:', BLOB_BASE_URL);
   }
   
   document.getElementById('profile-pic').src = picturePath
@@ -415,19 +413,15 @@ async function changeStatus() {
 
 /**
  * updatePicture()
- * Router function that calls either uploadPictureFromFile or updatePictureFromURL
- * depending on which input field has data.
+ * Triggers the file upload process for the profile picture.
  */
 async function updatePicture() {
   const fileInput = document.getElementById('file-picture')
-  const urlInput = document.getElementById('input-picture-url')
   
   if (fileInput.files.length > 0) {
     await uploadPictureFromFile()
-  } else if (urlInput.value.trim() !== '') {
-    await updatePictureFromURL()
   } else {
-    setStatus('Error: Please select a file or enter an image URL.', true)
+    setStatus('Error: Please select an image file to upload.', true)
   }
 }
 
@@ -494,7 +488,6 @@ async function uploadPictureFromFile() {
     const displayUrl = `${BLOB_BASE_URL}/avatars/${webpFilename}`
     document.getElementById('profile-pic').src = displayUrl
     fileInput.value = ''
-    document.getElementById('input-picture-url').disabled = false
     setStatus(`Picture uploaded and saved successfully.`)
     
     // Reload profile list to show updated image
@@ -502,92 +495,6 @@ async function uploadPictureFromFile() {
     
   } catch (err) {
     setStatus(`Error uploading picture: ${err.message}`, true)
-  }
-}
-
-/**
- * updatePictureFromURL()
- * Updates the profile picture from a pasted image URL.
- * Prompts the backend to download, convert to WebP, and store in Vercel Blob.
- */
-async function updatePictureFromURL() {
-  if (!currentProfileId) {
-    setStatus('Error: No profile is selected.', true)
-    return
-  }
-  
-  const urlInput = document.getElementById('input-picture-url')
-  const imageUrl = urlInput.value.trim()
-  
-  if (!imageUrl) {
-    setStatus('Error: URL field is empty.', true)
-    return
-  }
-  
-  // Validate URL format
-  try {
-    new URL(imageUrl)
-  } catch {
-    setStatus('Error: Invalid URL format.', true)
-    return
-  }
-  
-  try {
-    setStatus('Processing image URL...')
-    
-    // Create form data with just the URL
-    const formData = new FormData()
-    formData.append('imageUrl', imageUrl)
-    
-    // Send to our Vercel Serverless Function to download, convert and upload
-    const response = await fetch('/api/upload-avatar', {
-      method: 'POST',
-      body: formData
-    })
-    
-    // Check OK first before trying to parse if we can stream it
-    if (!response.ok) {
-        const errorHtml = await response.text()
-        console.error("Backend error:", errorHtml)
-        throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
-    }
-    
-    const result = await response.json()
-    
-    // The server returns the Vercel Blob URL and filename (result.filename)
-    // We only want the base filename for Supabase (e.g., 'avatar.webp')
-    const filenameToSave = result.filename || result.url.split('/').pop()
-    
-    // Update Supabase with the new filename
-    const { 
-      data: updatedProfile,
-      error: updateError 
-    } = await db
-      .from('profiles')
-      .update({ picture: filenameToSave })
-      .eq('id', currentProfileId)
-      .select()
-      .single()
-      
-    if (updateError) throw updateError
-    
-    // Immediately update UI
-    document.getElementById('profile-pic').src = result.url
-    urlInput.value = ''
-    document.getElementById('file-picture').disabled = false
-    setStatus('Picture processed, converted to WebP and updated successfully!')
-    
-    // Reload profile list
-    await loadProfileList()
-    
-    // Refresh the currently selected profile so data stays in sync
-    if (updatedProfile) {
-      currentProfile = updatedProfile
-    }
-    
-  } catch (err) {
-    console.error('Upload Error:', err)
-    setStatus(`Upload error: ${err.message}`, true)
   }
 }
 
@@ -766,18 +673,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     .addEventListener('click', addFriend)
   document.getElementById('btn-remove-friend')
     .addEventListener('click', removeFriend)
-    
-  // ── Picture upload mutual exclusivity ──────────────────────────
-  const filePicture = document.getElementById('file-picture')
-  const urlPicture = document.getElementById('input-picture-url')
-  
-  filePicture.addEventListener('change', () => {
-    urlPicture.disabled = filePicture.files.length > 0
-  })
-  
-  urlPicture.addEventListener('input', () => {
-    filePicture.disabled = urlPicture.value.trim().length > 0
-  })
 
   // ── Exit button ──────────────────────────────────────────────────
   document.getElementById('btn-exit')
@@ -790,10 +685,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     .addEventListener('click', changeQuote)
   document.getElementById('input-quote')
     .addEventListener('keydown', e => { if (e.key === 'Enter') changeQuote() })
-  
-  // ── Right panel: picture URL ─────────────────────────────────────
-  document.getElementById('input-picture-url')
-    .addEventListener('keydown', e => { if (e.key === 'Enter') updatePicture() })
 
   // ── Enter key shortcuts ────────────────────────────────────────
   // Pressing Enter in the name field triggers Add Profile
