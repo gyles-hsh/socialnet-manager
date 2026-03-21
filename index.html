@@ -111,14 +111,29 @@
 
             <!-- Change Picture -->
             <label class="form-label fw-semibold small mb-1">Change Picture:</label>
-            <button id="btn-change-picture" class="btn btn-primary btn-sm w-100 mb-2" data-bs-toggle="modal" data-bs-target="#pictureModal">Upload Picture</button>
+            
+            <!-- Upload from device -->
+            <div class="mb-2">
+              <label class="form-label fw-semibold small mb-1">Upload from device:</label>
+              <input type="file" id="file-picture" class="form-control form-control-sm mb-1"
+                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+              <button id="btn-upload-picture" class="btn btn-primary btn-sm w-100 mb-2">Upload Picture</button>
+            </div>
+            
+            <!-- Paste image URL -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small mb-1">Or paste an image URL:</label>
+              <input type="text" id="input-picture-url" class="form-control form-control-sm mb-1"
+                     placeholder="https://example.com/image.webp">
+              <button id="btn-paste-picture" class="btn btn-primary btn-sm w-100">Use URL</button>
+            </div>
 
             <!-- Manage Friends -->
             <label class="form-label fw-semibold small mb-1">Manage Friends:</label>
             <input type="text" id="input-friend" class="form-control form-control-sm mb-1"
-                   placeholder="Enter friend's name" style="height: 28px;">
-            <div class="d-flex gap-1">
-              <button id="btn-add-friend" class="btn btn-success btn-sm flex-fill">Add</button>
+                   placeholder="Enter friend's name">
+            <div class="d-flex gap-1 mb-3">
+              <button id="btn-add-friend" class="btn btn-success btn-sm flex-fill">Add Friend</button>
               <button id="btn-remove-friend" class="btn btn-warning btn-sm flex-fill">Remove</button>
             </div>
           </div>
@@ -136,41 +151,6 @@
   <footer id="status-bar">
     <span id="status-message">Ready. Select a profile from the list.</span>
   </footer>
-
-</div><!-- /#app-wrapper -->
-
-  <!-- Picture Upload Modal -->
-  <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="pictureModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="pictureModalLabel">Upload Picture</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <!-- Upload from device -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold small">Upload from device:</label>
-            <input type="file" id="file-picture" class="form-control form-control-sm"
-                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-            <button id="btn-upload-picture" class="btn btn-primary btn-sm w-100 mt-2">Upload</button>
-          </div>
-          
-          <div class="text-center mb-3">
-            <small class="text-muted">or</small>
-          </div>
-          
-          <!-- Paste image URL -->
-          <div>
-            <label class="form-label fw-semibold small">Paste image URL:</label>
-            <input type="text" id="input-picture-url" class="form-control form-control-sm"
-                   placeholder="https://example.com/image.webp">
-            <button id="btn-paste-picture" class="btn btn-primary btn-sm w-100 mt-2">Use URL</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
 </div><!-- /#app-wrapper -->
 

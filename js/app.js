@@ -456,10 +456,6 @@ async function uploadPictureFromFile() {
     fileInput.value = ''
     setStatus(`Picture uploaded and saved successfully.`)
     
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'))
-    if (modal) modal.hide()
-    
     // Reload profile list to show updated image
     await loadProfileList()
     
@@ -531,10 +527,6 @@ async function updatePictureFromURL() {
     document.getElementById('profile-pic').src = imageUrl
     urlInput.value = ''
     setStatus('Picture updated from URL.')
-    
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'))
-    if (modal) modal.hide()
     
     // Reload profile list to show updated image
     await loadProfileList()
