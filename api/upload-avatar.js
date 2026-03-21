@@ -1,6 +1,10 @@
 import { put } from '@vercel/blob';
 import busboy from 'busboy';
 import sharp from 'sharp';
+import dotenv from 'dotenv';
+
+// Load environment variables for local testing
+dotenv.config();
 
 /**
  * Vercel serverless function to handle avatar uploads to Vercel Blob
