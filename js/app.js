@@ -426,167 +426,6 @@ async function changePicture() {
 }
 
 /**
- * uploadPictureFromFile()
- * Reads file from input, validates format, converts to WebP if needed,
- * uploads to Vercel Blob via API, and updates the profile.
- */
-async function uploadPictureFromFile() {
-  if (!currentProfileId) {
-    setStatus('Error: No profile is selected.', true)
-    return
-  }
-
-  const fileInput = document.getElementById('file-picture')
-  const file = fileInput.files[0]
-
-  if (!file) {
-    setStatus('Error: No file selected.', true)
-    return
-  }
-
-  // Validate file type
-  const validTypes = ['image/png', 'image/jpeg', 'image/webp']
-  if (!validTypes.includes(file.type)) {
-    setStatus('Error: Only PNG, JPG, and WebP images are supported.', true)
-    return
-  }
-
-  try {
-    setStatus('Uploading image...')
-    
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('filename', file.name)
-
-    const response = await fetch('/api/upload-avatar', {
-      method: 'POST',
-      body: formData
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Upload failed')
-    }
-
-    const result = await response.json()
-    
-    // Update database with just the filename
-    const { error } = await db
-      .from('profiles')
-      .update({ picture: result.filename })
-      .eq('id', currentProfileId)
-
-    if (error) throw error
-
-    // Clear file input and update UI
-    fileInput.value = ''
-    document.getElementById('file-name-display').textContent = 'No file chosen'
-    
-    // Refresh profile display
-    const { data: profile } = await db
-      .from('profiles')
-      .select('*')
-      .eq('id', currentProfileId)
-      .single()
-    
-    if (profile) {
-      displayProfile(profile)
-      await loadProfileList()
-    }
-    
-    setStatus('Image uploaded successfully!')
-
-  } catch (err) {
-    setStatus(`Error uploading image: ${err.message}`, true)
-  }
-}
-
-/**
- * uploadPictureFromURL()
- * Downloads image from URL, validates format, converts to WebP if needed,
- * uploads to Vercel Blob via API, and updates the profile.
- */
-async function uploadPictureFromURL() {
-  if (!currentProfileId) {
-    setStatus('Error: No profile is selected.', true)
-    return
-  }
-
-  const urlInput = document.getElementById('input-picture-url')
-  const imageUrl = urlInput.value.trim()
-
-  if (!imageUrl) {
-    setStatus('Error: URL field is empty.', true)
-    return
-  }
-
-  try {
-    setStatus('Downloading and uploading image...')
-    
-    // Fetch the image from the URL
-    const response = await fetch(imageUrl)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`)
-    }
-
-    const blob = await response.blob()
-    
-    // Validate MIME type
-    const validTypes = ['image/png', 'image/jpeg', 'image/webp']
-    if (!validTypes.includes(blob.type)) {
-      throw new Error('Only PNG, JPG, and WebP images are supported.')
-    }
-
-    // Create FormData with the blob
-    const formData = new FormData()
-    const filename = new URL(imageUrl).pathname.split('/').pop() || `image-${Date.now()}`
-    formData.append('file', blob, filename)
-    formData.append('filename', filename)
-
-    // Upload to API
-    const uploadResponse = await fetch('/api/upload-avatar', {
-      method: 'POST',
-      body: formData
-    })
-
-    if (!uploadResponse.ok) {
-      const error = await uploadResponse.json()
-      throw new Error(error.error || 'Upload failed')
-    }
-
-    const result = await uploadResponse.json()
-    
-    // Update database with just the filename
-    const { error } = await db
-      .from('profiles')
-      .update({ picture: result.filename })
-      .eq('id', currentProfileId)
-
-    if (error) throw error
-
-    // Clear URL input and update UI
-    urlInput.value = ''
-    
-    // Refresh profile display
-    const { data: profile } = await db
-      .from('profiles')
-      .select('*')
-      .eq('id', currentProfileId)
-      .single()
-    
-    if (profile) {
-      displayProfile(profile)
-      await loadProfileList()
-    }
-    
-    setStatus('Image uploaded successfully!')
-
-  } catch (err) {
-    setStatus(`Error uploading image: ${err.message}`, true)
-  }
-}
-
-/**
  * changeQuote()
  * Updates the quote column for the current profile in Supabase
  * and immediately reflects the change in the centre panel.
@@ -751,15 +590,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Right panel buttons ────────────────────────────────────────
   document.getElementById('btn-status')
     .addEventListener('click', changeStatus)
-  document.getElementById('btn-upload-picture')
-    .addEventListener('click', uploadPictureFromFile)
-  document.getElementById('btn-upload-picture-url')
-    .addEventListener('click', uploadPictureFromURL)
-  document.getElementById('file-picture')
-    .addEventListener('change', (e) => {
-      const filename = e.target.files[0] ? e.target.files[0].name : 'No file chosen'
-      document.getElementById('file-name-display').textContent = filename
-    })
+  document.getElementById('btn-picture')
+    .addEventListener('click', changePicture)
   document.getElementById('btn-add-friend')
     .addEventListener('click', addFriend)
   document.getElementById('btn-remove-friend')
@@ -786,6 +618,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('input-status')
     .addEventListener('keydown', e => { if (e.key === 'Enter') changeStatus() })
 
+  // Pressing Enter in the picture field triggers Change Picture
+  document.getElementById('input-picture')
+    .addEventListener('keydown', e => { if (e.key === 'Enter') changePicture() })
 
   // Pressing Enter in the friend field triggers Add Friend
   document.getElementById('input-friend')
