@@ -12,6 +12,10 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_p-DYpHcLuXbKPcz9S0w9DQ_CNytcrzV
 
 const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
 
+// Vercel Blob storage base URL
+// Update this with your actual Vercel Blob domain from the upload script output
+const BLOB_BASE_URL = localStorage.getItem('blobUrl') || 'https://ubkbezlqyaawcxrm.vercel-storage.com';
+
 // ================================================================
 // Section 2: Application State
 // ================================================================
@@ -61,14 +65,17 @@ function clearCentrePanel() {
  * friends: an array of friend rows with a nested profiles object for the name.
  */
 function displayProfile(profile, friends = []) {
-  // Fix path separators: convert backslashes to forward slashes for web
-  let picturePath = profile.picture 
-    ? profile.picture.replace(/\\/g, '/') 
-    : 'resources/images/default.png'
+  let picturePath = 'resources/images/default.png';
   
-  // Convert old PNG/JPG extensions to WebP (stored in Vercel Blob as WebP)
-  if (picturePath.endsWith('.png') || picturePath.endsWith('.jpg') || picturePath.endsWith('.jpeg')) {
-    picturePath = picturePath.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+  if (profile.picture) {
+    // Get just the filename (remove any path prefixes)
+    const filename = profile.picture.split('/').pop();
+    
+    // Convert old PNG/JPG extensions to WebP if needed
+    let webpName = filename.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+    
+    // Construct full Vercel Blob URL
+    picturePath = `${BLOB_BASE_URL}/avatars/${webpName}`;
   }
   
   document.getElementById('profile-pic').src = picturePath

@@ -92,11 +92,13 @@ export default async function handler(req, res) {
       access: 'public'
     });
 
-    // Return the blob URL
+    // Return just the filename for Supabase storage (frontend will construct full URL if needed)
+    const justFilename = `${baseName}.webp`;
+    
     return res.status(200).json({
-      url: blob.url,
-      contentType,
-      filename: blob.pathname
+      filename: justFilename,          // Store this in Supabase - just "avatar.webp"
+      url: blob.url,                   // Full URL: https://xxx.blob.vercel-storage.com/avatars/avatar.webp
+      pathname: blob.pathname          // Path: avatars/avatar.webp
     });
 
   } catch (error) {
