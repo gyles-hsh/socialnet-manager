@@ -33,7 +33,7 @@
     <div class="row g-2 h-100">
 
       <!-- ===== LEFT PANEL: Profile Management ===== -->
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-md-2">
         <div class="sn-panel">
           <h6 class="fw-bold text-dark border-bottom pb-1 mb-2">Profile Management</h6>
 
@@ -56,7 +56,7 @@
       </div>
 
       <!-- ===== CENTER PANEL: Profile Information ===== -->
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-md-6">
         <div class="sn-panel text-center">
           <h6 class="fw-bold text-dark border-bottom pb-1 mb-2">Profile Information</h6>
 
@@ -109,11 +109,23 @@
                    placeholder="Enter favorite quote">
             <button id="btn-quote" class="btn btn-primary btn-sm w-100 mb-3">Update Quote</button>
 
-            <!-- Change Picture -->
+            <!-- Change Picture: Option 1 - Upload from Device -->
             <label class="form-label fw-semibold small mb-1">Change Picture:</label>
-            <input type="text" id="input-picture" class="form-control form-control-sm mb-1"
-                   placeholder="Enter image filename">
-            <button id="btn-picture" class="btn btn-primary btn-sm w-100 mb-3">Update Picture</button>
+            <div class="mb-3">
+              <label class="form-label small text-muted mb-1">1. Upload from Device:</label>
+              <input type="file" id="file-picture" class="form-control form-control-sm mb-1"
+                     accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+              <small id="file-name-display" class="text-muted d-block mb-2">No file chosen</small>
+              <button id="btn-upload-picture" class="btn btn-success btn-sm w-100 mb-2">Upload Image</button>
+            </div>
+
+            <!-- Change Picture: Option 2 - Paste URL -->
+            <div class="mb-3">
+              <label class="form-label small text-muted mb-1">2. Or paste Image URL:</label>
+              <input type="text" id="input-picture-url" class="form-control form-control-sm mb-1"
+                     placeholder="Paste image URL">
+              <button id="btn-upload-picture-url" class="btn btn-success btn-sm w-100 mb-3">Upload from URL</button>
+            </div>
 
             <!-- Manage Friends -->
             <label class="form-label fw-semibold small mb-1">Manage Friends:</label>
